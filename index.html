@@ -54,6 +54,7 @@
   <canvas id="fireChart" width="800" height="400"></canvas>
 
   <script>
+    let fireChart;
     function runSimulation() {
       console.log("Simulation running...");
       const birthday = new Date(document.getElementById('birthday').value);
@@ -96,11 +97,9 @@
         labels.push(date.toISOString().split('T')[0]);
       }
 
-      if (window.fireChart && typeof window.fireChart.destroy === 'function') {
-        window.fireChart.destroy();
-      }
+      if (fireChart) fireChart.destroy();
       const ctx = document.getElementById('fireChart').getContext('2d');
-      window.fireChart = new Chart(ctx, {
+      fireChart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: ages,
