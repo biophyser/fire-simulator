@@ -95,7 +95,7 @@
         labels.push(date.toISOString().split('T')[0]);
       }
 
-      if (window.fireChart) fireChart.destroy();
+      if (window.fireChart) window.fireChart.destroy();
       const ctx = document.getElementById('fireChart').getContext('2d');
       window.fireChart = new Chart(ctx, {
         type: 'line',
