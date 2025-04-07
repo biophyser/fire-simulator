@@ -7,6 +7,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.3.1/luxon.min.js"></script>
     <style>
+        :root {
+            --background: #121212;
+            --card-background: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --accent: #bb86fc;
+            --accent-dark: #9d71d1;
+            --border: #333333;
+            --input-background: #2a2a2a;
+            --table-header: #333333;
+            --table-row-even: #222222;
+            --success: #03dac6;
+            --success-dark: #02b3a3;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -14,20 +29,20 @@
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
-            background-color: #f9f9f9;
-            color: #333;
+            background-color: var(--background);
+            color: var(--text-primary);
         }
         
         h1, h2 {
-            color: #2c3e50;
+            color: var(--accent);
         }
         
         .scenario {
-            background-color: white;
+            background-color: var(--card-background);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
         .input-grid {
@@ -44,67 +59,86 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            color: var(--text-primary);
         }
         
         input {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 4px;
             box-sizing: border-box;
+            background-color: var(--input-background);
+            color: var(--text-primary);
+        }
+        
+        input[type="date"] {
+            color-scheme: dark;
         }
         
         button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: var(--success);
+            color: black;
             border: none;
             padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
             margin-top: 10px;
+            font-weight: bold;
         }
         
         button:hover {
-            background-color: #45a049;
+            background-color: var(--success-dark);
         }
         
         .chart-container {
             margin-top: 20px;
             height: 400px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-        }
-        
-        table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
         }
         
         th, td {
             padding: 10px;
             text-align: left;
+            border: 1px solid var(--border);
         }
         
         th {
-            background-color: #f2f2f2;
+            background-color: var(--table-header);
+            color: var(--text-primary);
         }
         
         tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: var(--table-row-even);
         }
         
         .table-container {
             margin-top: 20px;
             max-height: 300px;
             overflow-y: auto;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
         }
         
         .overlay-checkbox {
             margin-top: 15px;
+        }
+        
+        /* Custom checkbox styling */
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            accent-color: var(--accent);
         }
     </style>
 </head>
@@ -276,7 +310,11 @@
         let scenarioBData = null;
         let chartA = null;
         let chartB = null;
-
+        
+        // Set Chart.js defaults for dark mode
+        Chart.defaults.color = '#e0e0e0';
+        Chart.defaults.borderColor = '#444444';
+        
         // Simulate FIRE function (JavaScript version of the Python function)
         function simulateFire(startingInvestments, monthlyContribution, growthRate, monthlyExpenses,
                         startContribAge, stopContribAge, startWithdrawAge,
@@ -352,7 +390,7 @@
             const datasets = [{
                 label: scenarioName,
                 data: data.balances,
-                borderColor: scenarioName === 'Scenario A' ? 'rgba(54, 162, 235, 1)' : 'rgba(255, 99, 132, 1)',
+                borderColor: scenarioName === 'Scenario A' ? '#bb86fc' : '#03dac6',
                 backgroundColor: 'rgba(0, 0, 0, 0)',
                 borderWidth: 2,
                 pointRadius: 0,
@@ -368,13 +406,14 @@
                     mode: 'vertical',
                     scaleID: 'x',
                     value: markers.startContribAge,
-                    borderColor: 'rgba(0, 0, 255, 0.7)',
+                    borderColor: 'rgba(90, 120, 255, 0.7)',
                     borderWidth: 2,
                     borderDash: [5, 5],
                     label: {
                         content: 'Start Contributions',
                         enabled: true,
-                        position: 'top'
+                        position: 'top',
+                        color: 'rgba(90, 120, 255, 1)'
                     }
                 });
             }
@@ -385,13 +424,14 @@
                     mode: 'vertical',
                     scaleID: 'x',
                     value: markers.stopContribAge,
-                    borderColor: 'rgba(0, 128, 0, 0.7)',
+                    borderColor: 'rgba(0, 200, 83, 0.7)',
                     borderWidth: 2,
                     borderDash: [5, 5],
                     label: {
                         content: 'Stop Contributions',
                         enabled: true,
-                        position: 'top'
+                        position: 'top',
+                        color: 'rgba(0, 200, 83, 1)'
                     }
                 });
             }
@@ -402,13 +442,14 @@
                     mode: 'vertical',
                     scaleID: 'x',
                     value: markers.startWithdrawAge,
-                    borderColor: 'rgba(255, 0, 0, 0.7)',
+                    borderColor: 'rgba(255, 80, 80, 0.7)',
                     borderWidth: 2,
                     borderDash: [5, 5],
                     label: {
                         content: 'Start Withdrawals',
                         enabled: true,
-                        position: 'top'
+                        position: 'top',
+                        color: 'rgba(255, 80, 80, 1)'
                     }
                 });
             }
@@ -419,13 +460,14 @@
                     mode: 'vertical',
                     scaleID: 'x',
                     value: markers.socialSecurityAge,
-                    borderColor: 'rgba(128, 0, 128, 0.7)',
+                    borderColor: 'rgba(221, 105, 219, 0.7)',
                     borderWidth: 2,
                     borderDash: [5, 5],
                     label: {
                         content: 'Start Social Security',
                         enabled: true,
-                        position: 'top'
+                        position: 'top',
+                        color: 'rgba(221, 105, 219, 1)'
                     }
                 });
             }
@@ -454,7 +496,10 @@
                                 text: 'Age'
                             },
                             min: 30,
-                            max: 95
+                            max: 95,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
                         },
                         y: {
                             title: {
@@ -465,6 +510,9 @@
                                 callback: function(value) {
                                     return formatCurrency(value);
                                 }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
@@ -477,14 +525,23 @@
                                 title: function(tooltipItems) {
                                     return `Age: ${tooltipItems[0].label}`;
                                 }
-                            }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#e0e0e0',
+                            bodyColor: '#e0e0e0',
                         },
                         title: {
                             display: true,
-                            text: `FIRE Burndown Projection: ${scenarioName}`
+                            text: `FIRE Burndown Projection: ${scenarioName}`,
+                            color: '#e0e0e0'
                         },
                         annotation: {
                             annotations: verticalLines
+                        },
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0'
+                            }
                         }
                     }
                 }
@@ -613,7 +670,7 @@
             const datasets = [{
                 label: 'Scenario B',
                 data: scenarioBData.balances,
-                borderColor: 'rgba(255, 99, 132, 1)',
+                borderColor: '#03dac6',
                 backgroundColor: 'rgba(0, 0, 0, 0)',
                 borderWidth: 2,
                 borderDash: [5, 5],
@@ -626,7 +683,7 @@
                 datasets.push({
                     label: 'Scenario A (Overlay)',
                     data: scenarioAData.balances,
-                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: '#bb86fc',
                     backgroundColor: 'rgba(0, 0, 0, 0)',
                     borderWidth: 2,
                     pointRadius: 0,
@@ -656,7 +713,10 @@
                                 text: 'Age'
                             },
                             min: 30,
-                            max: 95
+                            max: 95,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
                         },
                         y: {
                             title: {
@@ -667,6 +727,9 @@
                                 callback: function(value) {
                                     return formatCurrency(value);
                                 }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
@@ -679,11 +742,20 @@
                                 title: function(tooltipItems) {
                                     return `Age: ${tooltipItems[0].label}`;
                                 }
-                            }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#e0e0e0',
+                            bodyColor: '#e0e0e0',
                         },
                         title: {
                             display: true,
-                            text: 'FIRE Burndown Projection: Scenario B (Comparison)'
+                            text: 'FIRE Burndown Projection: Scenario B (Comparison)',
+                            color: '#e0e0e0'
+                        },
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0'
+                            }
                         }
                     }
                 }
