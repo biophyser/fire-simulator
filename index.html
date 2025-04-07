@@ -1,132 +1,708 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FIRE Simulator</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
-  <style>
-    body { font-family: sans-serif; margin: 2rem; max-width: 800px; }
-    label, input { display: block; margin-bottom: 10px; }
-    input[type="number"], input[type="date"] { width: 100%; padding: 5px; }
-    canvas { margin-top: 30px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRE Financial Projection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.3.1/luxon.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+        }
+        
+        .scenario {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            height: 400px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .table-container {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .overlay-checkbox {
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
-  <h1>FIRE Simulator - Scenario A</h1>
+    <h1>FIRE Financial Projection (Monthly)</h1>
+    
+    <div class="input-group">
+        <label for="birthday">Your Birthday:</label>
+        <input type="date" id="birthday" value="1987-11-23">
+    </div>
+    
+    <!-- Scenario A -->
+    <div class="scenario">
+        <h2>Scenario A</h2>
+        <div class="input-grid">
+            <div>
+                <div class="input-group">
+                    <label for="starting_investments_a">Starting Investments ($):</label>
+                    <input type="number" id="starting_investments_a" value="500000" step="10000">
+                </div>
+                <div class="input-group">
+                    <label for="growth_rate_a">Annual Growth Rate (%):</label>
+                    <input type="number" id="growth_rate_a" value="4.0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="start_contrib_age_a">Age to Start Contributing:</label>
+                    <input type="number" id="start_contrib_age_a" value="37" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="start_contrib_month_a">Month to Start Contributing (1-12):</label>
+                    <input type="number" id="start_contrib_month_a" value="1" min="1" max="12">
+                </div>
+                <div class="input-group">
+                    <label for="social_security_monthly_a">Social Security Monthly ($):</label>
+                    <input type="number" id="social_security_monthly_a" value="0" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="social_security_age_a">Age to Start Social Security:</label>
+                    <input type="number" id="social_security_age_a" value="67" step="1">
+                </div>
+            </div>
+            <div>
+                <div class="input-group">
+                    <label for="monthly_contribution_a">Monthly Contribution ($):</label>
+                    <input type="number" id="monthly_contribution_a" value="8333" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="monthly_expenses_a">Monthly Expenses ($):</label>
+                    <input type="number" id="monthly_expenses_a" value="6250" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="stop_contrib_age_a">Age to Stop Contributing:</label>
+                    <input type="number" id="stop_contrib_age_a" value="40" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="stop_contrib_month_a">Month to Stop Contributing (1-12):</label>
+                    <input type="number" id="stop_contrib_month_a" value="1" min="1" max="12">
+                </div>
+                <div class="input-group">
+                    <label for="start_withdraw_age_a">Age to Start Withdrawing:</label>
+                    <input type="number" id="start_withdraw_age_a" value="55" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="pension_lump_sum_a">Pension Lump Sum at Stop Contribution ($):</label>
+                    <input type="number" id="pension_lump_sum_a" value="0" step="1000">
+                </div>
+            </div>
+        </div>
+        <button id="run_scenario_a">Run Scenario A</button>
+        <div class="chart-container">
+            <canvas id="chart_a"></canvas>
+        </div>
+        <div class="table-container">
+            <table id="table_a">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Age</th>
+                        <th>Portfolio Balance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Scenario B -->
+    <div class="scenario">
+        <h2>Scenario B (Optional)</h2>
+        <div class="input-grid">
+            <div>
+                <div class="input-group">
+                    <label for="starting_investments_b">Starting Investments ($):</label>
+                    <input type="number" id="starting_investments_b" value="500000" step="10000">
+                </div>
+                <div class="input-group">
+                    <label for="growth_rate_b">Annual Growth Rate (%):</label>
+                    <input type="number" id="growth_rate_b" value="4.0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="start_contrib_age_b">Age to Start Contributing:</label>
+                    <input type="number" id="start_contrib_age_b" value="37" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="start_contrib_month_b">Month to Start Contributing (1-12):</label>
+                    <input type="number" id="start_contrib_month_b" value="1" min="1" max="12">
+                </div>
+                <div class="input-group">
+                    <label for="social_security_monthly_b">Social Security Monthly ($):</label>
+                    <input type="number" id="social_security_monthly_b" value="0" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="social_security_age_b">Age to Start Social Security:</label>
+                    <input type="number" id="social_security_age_b" value="67" step="1">
+                </div>
+            </div>
+            <div>
+                <div class="input-group">
+                    <label for="monthly_contribution_b">Monthly Contribution ($):</label>
+                    <input type="number" id="monthly_contribution_b" value="8333" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="monthly_expenses_b">Monthly Expenses ($):</label>
+                    <input type="number" id="monthly_expenses_b" value="6250" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="stop_contrib_age_b">Age to Stop Contributing:</label>
+                    <input type="number" id="stop_contrib_age_b" value="40" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="stop_contrib_month_b">Month to Stop Contributing (1-12):</label>
+                    <input type="number" id="stop_contrib_month_b" value="1" min="1" max="12">
+                </div>
+                <div class="input-group">
+                    <label for="start_withdraw_age_b">Age to Start Withdrawing:</label>
+                    <input type="number" id="start_withdraw_age_b" value="55" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="pension_lump_sum_b">Pension Lump Sum at Stop Contribution ($):</label>
+                    <input type="number" id="pension_lump_sum_b" value="0" step="1000">
+                </div>
+            </div>
+        </div>
+        <div class="overlay-checkbox">
+            <input type="checkbox" id="overlay_a" checked>
+            <label for="overlay_a">Overlay Scenario A on Scenario B plot</label>
+        </div>
+        <button id="run_scenario_b">Run Scenario B</button>
+        <div class="chart-container">
+            <canvas id="chart_b"></canvas>
+        </div>
+        <div class="table-container">
+            <table id="table_b">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Age</th>
+                        <th>Portfolio Balance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-  <label>Birthday:
-    <input type="date" id="birthday" value="1987-11-23" />
-  </label>
-  <label>Starting Investments ($):
-    <input type="number" id="startInvest" value="500000" />
-  </label>
-  <label>Annual Growth Rate (%):
-    <input type="number" id="growthRate" value="4.0" step="0.1" />
-  </label>
-  <label>Age to Start Contributing:
-    <input type="number" id="startAge" value="37" />
-  </label>
-  <label>Age to Stop Contributing:
-    <input type="number" id="stopAge" value="40" />
-  </label>
-  <label>Monthly Contribution ($):
-    <input type="number" id="monthlyContrib" value="8333" />
-  </label>
-  <label>Monthly Expenses ($):
-    <input type="number" id="monthlyExp" value="6250" />
-  </label>
-  <label>Age to Start Withdrawing:
-    <input type="number" id="withdrawAge" value="55" />
-  </label>
-  <label>Social Security Monthly ($):
-    <input type="number" id="ssMonthly" value="0" />
-  </label>
-  <label>Social Security Age:
-    <input type="number" id="ssAge" value="67" />
-  </label>
-  <label>Pension Lump Sum ($):
-    <input type="number" id="pension" value="0" />
-  </label>
+    <script>
+        // Store scenario data
+        let scenarioAData = null;
+        let scenarioBData = null;
+        let chartA = null;
+        let chartB = null;
 
-  <button onclick="runSimulation()">Run Simulation</button>
-
-  <canvas id="fireChart" width="800" height="400"></canvas>
-
-  <script>
-    let fireChart;
-    function runSimulation() {
-      console.log("Simulation running...");
-      const birthday = new Date(document.getElementById('birthday').value);
-      const startInvest = +document.getElementById('startInvest').value;
-      const growthRate = +document.getElementById('growthRate').value / 100;
-      const startAge = +document.getElementById('startAge').value;
-      const stopAge = +document.getElementById('stopAge').value;
-      const monthlyContrib = +document.getElementById('monthlyContrib').value;
-      const monthlyExp = +document.getElementById('monthlyExp').value;
-      const withdrawAge = +document.getElementById('withdrawAge').value;
-      const ssMonthly = +document.getElementById('ssMonthly').value;
-      const ssAge = +document.getElementById('ssAge').value;
-      const pension = +document.getElementById('pension').value;
-
-      const startMonth = Math.floor(startAge * 12);
-      const stopMonth = Math.floor(stopAge * 12);
-      const withdrawMonth = Math.floor(withdrawAge * 12);
-      const ssMonth = Math.floor(ssAge * 12);
-
-      const balances = [startInvest];
-      const ages = [startAge];
-      const labels = [birthday.toISOString().split('T')[0]];
-
-      const monthlyRate = Math.pow(1 + growthRate, 1 / 12) - 1;
-
-      for (let m = startMonth + 1; m <= 95 * 12; m++) {
-        let age = m / 12;
-        let balance = balances[balances.length - 1] * (1 + monthlyRate);
-
-        if (m === stopMonth) balance += pension;
-        if (m >= startMonth && m < stopMonth) balance += monthlyContrib;
-        if (m >= withdrawMonth) balance -= monthlyExp;
-        if (m >= ssMonth) balance += ssMonthly;
-        if (balance < 0) balance = 0;
-
-        balances.push(balance);
-        ages.push(age);
-        const date = new Date(birthday);
-        date.setMonth(date.getMonth() + m);
-        labels.push(date.toISOString().split('T')[0]);
-      }
-
-      if (fireChart) fireChart.destroy();
-      const ctx = document.getElementById('fireChart').getContext('2d');
-      fireChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ages,
-          datasets: [{
-            label: 'Portfolio Balance ($)',
-            data: balances,
-            borderColor: 'blue',
-            borderWidth: 2,
-            fill: false,
-            pointRadius: 0
-          }]
-        },
-        options: {
-          scales: {
-            x: {
-              title: { display: true, text: 'Age' },
-              min: 30,
-              max: 95
-            },
-            y: {
-              title: { display: true, text: 'Balance ($)' },
-              beginAtZero: true
+        // Simulate FIRE function (JavaScript version of the Python function)
+        function simulateFire(startingInvestments, monthlyContribution, growthRate, monthlyExpenses,
+                        startContribAge, stopContribAge, startWithdrawAge,
+                        socialSecurityMonthly, socialSecurityAge,
+                        startContribMonth, stopContribMonth, birthday, pensionLumpSum) {
+            
+            const startMonth = parseInt(startContribAge * 12 + startContribMonth - 1);
+            const stopMonth = parseInt(stopContribAge * 12 + stopContribMonth - 1);
+            
+            // Generate months array from start month to 96 years (maximum age)
+            const months = [];
+            for (let i = startMonth; i < 96 * 12; i++) {
+                months.push(i);
             }
-          }
+            
+            const balances = [startingInvestments];
+            const monthlyGrowthRate = Math.pow(1 + growthRate / 100, 1 / 12) - 1;
+            
+            // Simulate monthly changes
+            for (let i = 1; i < months.length; i++) {
+                const month = months[i];
+                const age = month / 12;
+                let prevBalance = balances[i-1] * (1 + monthlyGrowthRate);
+                
+                if (month === stopMonth) {
+                    prevBalance += pensionLumpSum;
+                }
+                
+                if (startMonth <= month && month < stopMonth) {
+                    prevBalance += monthlyContribution;
+                }
+                
+                if (month >= parseInt(startWithdrawAge * 12)) {
+                    const ssIncome = age >= socialSecurityAge ? socialSecurityMonthly : 0;
+                    prevBalance -= monthlyExpenses;
+                    prevBalance += ssIncome;
+                }
+                
+                balances.push(prevBalance > 0 ? prevBalance : 0);
+            }
+            
+            // Calculate ages and dates
+            const ages = months.map(month => month / 12);
+            const roundedAges = ages.map(age => Math.floor(age));
+            
+            // Calculate dates
+            const dates = [];
+            const birthdayDate = new Date(birthday);
+            
+            for (let month of months) {
+                const date = new Date(birthdayDate);
+                date.setMonth(birthdayDate.getMonth() + month);
+                dates.push(date.toISOString().substring(0, 7)); // Format as YYYY-MM
+            }
+            
+            return { dates, roundedAges, balances, ages };
         }
-      });
-    }
-  </script>
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // Create or update chart
+        function createOrUpdateChart(chartId, data, scenarioName, markers = {}) {
+            const ctx = document.getElementById(chartId).getContext('2d');
+            
+            // Create datasets
+            const datasets = [{
+                label: scenarioName,
+                data: data.balances,
+                borderColor: scenarioName === 'Scenario A' ? 'rgba(54, 162, 235, 1)' : 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 3
+            }];
+            
+            // Prepare vertical lines for key ages
+            const verticalLines = [];
+            
+            if (markers.startContribAge) {
+                verticalLines.push({
+                    type: 'line',
+                    mode: 'vertical',
+                    scaleID: 'x',
+                    value: markers.startContribAge,
+                    borderColor: 'rgba(0, 0, 255, 0.7)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        content: 'Start Contributions',
+                        enabled: true,
+                        position: 'top'
+                    }
+                });
+            }
+            
+            if (markers.stopContribAge) {
+                verticalLines.push({
+                    type: 'line',
+                    mode: 'vertical',
+                    scaleID: 'x',
+                    value: markers.stopContribAge,
+                    borderColor: 'rgba(0, 128, 0, 0.7)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        content: 'Stop Contributions',
+                        enabled: true,
+                        position: 'top'
+                    }
+                });
+            }
+            
+            if (markers.startWithdrawAge) {
+                verticalLines.push({
+                    type: 'line',
+                    mode: 'vertical',
+                    scaleID: 'x',
+                    value: markers.startWithdrawAge,
+                    borderColor: 'rgba(255, 0, 0, 0.7)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        content: 'Start Withdrawals',
+                        enabled: true,
+                        position: 'top'
+                    }
+                });
+            }
+            
+            if (markers.socialSecurityAge) {
+                verticalLines.push({
+                    type: 'line',
+                    mode: 'vertical',
+                    scaleID: 'x',
+                    value: markers.socialSecurityAge,
+                    borderColor: 'rgba(128, 0, 128, 0.7)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        content: 'Start Social Security',
+                        enabled: true,
+                        position: 'top'
+                    }
+                });
+            }
+            
+            // Check if chart already exists and destroy it
+            if (chartId === 'chart_a' && chartA) {
+                chartA.destroy();
+            } else if (chartId === 'chart_b' && chartB) {
+                chartB.destroy();
+            }
+            
+            // Create the chart
+            const chartConfig = {
+                type: 'line',
+                data: {
+                    labels: data.ages,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            },
+                            min: 30,
+                            max: 95
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Portfolio Balance ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+                                },
+                                title: function(tooltipItems) {
+                                    return `Age: ${tooltipItems[0].label}`;
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `FIRE Burndown Projection: ${scenarioName}`
+                        },
+                        annotation: {
+                            annotations: verticalLines
+                        }
+                    }
+                }
+            };
+            
+            const chart = new Chart(ctx, chartConfig);
+            
+            if (chartId === 'chart_a') {
+                chartA = chart;
+            } else {
+                chartB = chart;
+            }
+            
+            return chart;
+        }
+        
+        // Update table with data
+        function updateTable(tableId, data) {
+            const tableBody = document.querySelector(`#${tableId} tbody`);
+            tableBody.innerHTML = '';
+            
+            // Limit to more reasonable amount to display (every 12 months = yearly)
+            for (let i = 0; i < data.dates.length; i += 12) {
+                const row = document.createElement('tr');
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = data.dates[i];
+                row.appendChild(dateCell);
+                
+                const ageCell = document.createElement('td');
+                ageCell.textContent = data.roundedAges[i];
+                row.appendChild(ageCell);
+                
+                const balanceCell = document.createElement('td');
+                balanceCell.textContent = formatCurrency(data.balances[i]);
+                row.appendChild(balanceCell);
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Run Scenario A
+        document.getElementById('run_scenario_a').addEventListener('click', function() {
+            // Get input values
+            const startingInvestments = parseFloat(document.getElementById('starting_investments_a').value);
+            const monthlyContribution = parseFloat(document.getElementById('monthly_contribution_a').value);
+            const growthRate = parseFloat(document.getElementById('growth_rate_a').value);
+            const monthlyExpenses = parseFloat(document.getElementById('monthly_expenses_a').value);
+            const startContribAge = parseFloat(document.getElementById('start_contrib_age_a').value);
+            const stopContribAge = parseFloat(document.getElementById('stop_contrib_age_a').value);
+            const startWithdrawAge = parseFloat(document.getElementById('start_withdraw_age_a').value);
+            const socialSecurityMonthly = parseFloat(document.getElementById('social_security_monthly_a').value);
+            const socialSecurityAge = parseFloat(document.getElementById('social_security_age_a').value);
+            const startContribMonth = parseFloat(document.getElementById('start_contrib_month_a').value);
+            const stopContribMonth = parseFloat(document.getElementById('stop_contrib_month_a').value);
+            const birthday = document.getElementById('birthday').value;
+            const pensionLumpSum = parseFloat(document.getElementById('pension_lump_sum_a').value);
+            
+            // Run simulation
+            scenarioAData = simulateFire(
+                startingInvestments, 
+                monthlyContribution, 
+                growthRate, 
+                monthlyExpenses,
+                startContribAge, 
+                stopContribAge, 
+                startWithdrawAge,
+                socialSecurityMonthly, 
+                socialSecurityAge,
+                startContribMonth, 
+                stopContribMonth, 
+                birthday, 
+                pensionLumpSum
+            );
+            
+            // Create/update chart and table
+            createOrUpdateChart('chart_a', scenarioAData, 'Scenario A', {
+                startContribAge: startContribAge,
+                stopContribAge: stopContribAge,
+                startWithdrawAge: startWithdrawAge,
+                socialSecurityAge: socialSecurityAge
+            });
+            
+            updateTable('table_a', scenarioAData);
+        });
+        
+        // Run Scenario B
+        document.getElementById('run_scenario_b').addEventListener('click', function() {
+            // Get input values
+            const startingInvestments = parseFloat(document.getElementById('starting_investments_b').value);
+            const monthlyContribution = parseFloat(document.getElementById('monthly_contribution_b').value);
+            const growthRate = parseFloat(document.getElementById('growth_rate_b').value);
+            const monthlyExpenses = parseFloat(document.getElementById('monthly_expenses_b').value);
+            const startContribAge = parseFloat(document.getElementById('start_contrib_age_b').value);
+            const stopContribAge = parseFloat(document.getElementById('stop_contrib_age_b').value);
+            const startWithdrawAge = parseFloat(document.getElementById('start_withdraw_age_b').value);
+            const socialSecurityMonthly = parseFloat(document.getElementById('social_security_monthly_b').value);
+            const socialSecurityAge = parseFloat(document.getElementById('social_security_age_b').value);
+            const startContribMonth = parseFloat(document.getElementById('start_contrib_month_b').value);
+            const stopContribMonth = parseFloat(document.getElementById('stop_contrib_month_b').value);
+            const birthday = document.getElementById('birthday').value;
+            const pensionLumpSum = parseFloat(document.getElementById('pension_lump_sum_b').value);
+            const overlayA = document.getElementById('overlay_a').checked;
+            
+            // Run simulation
+            scenarioBData = simulateFire(
+                startingInvestments, 
+                monthlyContribution, 
+                growthRate, 
+                monthlyExpenses,
+                startContribAge, 
+                stopContribAge, 
+                startWithdrawAge,
+                socialSecurityMonthly, 
+                socialSecurityAge,
+                startContribMonth, 
+                stopContribMonth, 
+                birthday, 
+                pensionLumpSum
+            );
+            
+            // Create chart B context
+            const ctx = document.getElementById('chart_b').getContext('2d');
+            
+            // Prepare datasets
+            const datasets = [{
+                label: 'Scenario B',
+                data: scenarioBData.balances,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                pointHoverRadius: 3
+            }];
+            
+            // Add Scenario A if overlay is checked
+            if (overlayA && scenarioAData) {
+                datasets.push({
+                    label: 'Scenario A (Overlay)',
+                    data: scenarioAData.balances,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 3
+                });
+            }
+            
+            // Destroy previous chart if exists
+            if (chartB) {
+                chartB.destroy();
+            }
+            
+            // Create chart
+            chartB = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: scenarioBData.ages,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            },
+                            min: 30,
+                            max: 95
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Portfolio Balance ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+                                },
+                                title: function(tooltipItems) {
+                                    return `Age: ${tooltipItems[0].label}`;
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'FIRE Burndown Projection: Scenario B (Comparison)'
+                        }
+                    }
+                }
+            });
+            
+            updateTable('table_b', scenarioBData);
+        });
+        
+        // Update Scenario B inputs when Scenario A changes (auto-fill with same values)
+        document.querySelectorAll('[id$="_a"]').forEach(input => {
+            input.addEventListener('change', function() {
+                if (input.id !== 'run_scenario_a' && input.id !== 'overlay_a') {
+                    const scenarioBInput = document.getElementById(input.id.replace('_a', '_b'));
+                    if (scenarioBInput) {
+                        scenarioBInput.value = input.value;
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
