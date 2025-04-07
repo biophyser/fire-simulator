@@ -6,51 +6,67 @@
   <title>FIRE Simulator</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 2rem; max-width: 1000px; }
-    .scenario { margin-bottom: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem; }
+    body { font-family: sans-serif; margin: 2rem; max-width: 800px; }
     label, input { display: block; margin-bottom: 10px; }
     input[type="number"], input[type="date"] { width: 100%; padding: 5px; }
     canvas { margin-top: 30px; }
   </style>
 </head>
 <body>
-  <h1>FIRE Simulator</h1>
+  <h1>FIRE Simulator - Scenario A</h1>
 
-  <div class="scenario">
-    <h2>Scenario A</h2>
-    <label>Birthday: <input type="date" id="birthday" value="1987-11-23" /></label>
-    <label>Starting Investments ($): <input type="number" id="startInvestA" value="500000" /></label>
-    <label>Annual Growth Rate (%): <input type="number" id="growthRateA" value="4.0" step="0.1" /></label>
-    <label>Age to Start Contributing: <input type="number" id="startAgeA" value="37" /></label>
-    <label>Age to Stop Contributing: <input type="number" id="stopAgeA" value="40" /></label>
-    <label>Monthly Contribution ($): <input type="number" id="monthlyContribA" value="8333" /></label>
-    <label>Monthly Expenses ($): <input type="number" id="monthlyExpA" value="6250" /></label>
-    <label>Age to Start Withdrawing: <input type="number" id="withdrawAgeA" value="55" /></label>
-    <label>Social Security Monthly ($): <input type="number" id="ssMonthlyA" value="0" /></label>
-    <label>Social Security Age: <input type="number" id="ssAgeA" value="67" /></label>
-    <label>Pension Lump Sum ($): <input type="number" id="pensionA" value="0" /></label>
-  </div>
+  <label>Birthday:
+    <input type="date" id="birthday" value="1987-11-23" />
+  </label>
+  <label>Starting Investments ($):
+    <input type="number" id="startInvest" value="500000" />
+  </label>
+  <label>Annual Growth Rate (%):
+    <input type="number" id="growthRate" value="4.0" step="0.1" />
+  </label>
+  <label>Age to Start Contributing:
+    <input type="number" id="startAge" value="37" />
+  </label>
+  <label>Age to Stop Contributing:
+    <input type="number" id="stopAge" value="40" />
+  </label>
+  <label>Monthly Contribution ($):
+    <input type="number" id="monthlyContrib" value="8333" />
+  </label>
+  <label>Monthly Expenses ($):
+    <input type="number" id="monthlyExp" value="6250" />
+  </label>
+  <label>Age to Start Withdrawing:
+    <input type="number" id="withdrawAge" value="55" />
+  </label>
+  <label>Social Security Monthly ($):
+    <input type="number" id="ssMonthly" value="0" />
+  </label>
+  <label>Social Security Age:
+    <input type="number" id="ssAge" value="67" />
+  </label>
+  <label>Pension Lump Sum ($):
+    <input type="number" id="pension" value="0" />
+  </label>
 
-  <div class="scenario">
-    <h2>Scenario B (optional)</h2>
-    <label>Starting Investments ($): <input type="number" id="startInvestB" value="500000" /></label>
-    <label>Annual Growth Rate (%): <input type="number" id="growthRateB" value="4.0" step="0.1" /></label>
-    <label>Age to Start Contributing: <input type="number" id="startAgeB" value="37" /></label>
-    <label>Age to Stop Contributing: <input type="number" id="stopAgeB" value="40" /></label>
-    <label>Monthly Contribution ($): <input type="number" id="monthlyContribB" value="8333" /></label>
-    <label>Monthly Expenses ($): <input type="number" id="monthlyExpB" value="6250" /></label>
-    <label>Age to Start Withdrawing: <input type="number" id="withdrawAgeB" value="55" /></label>
-    <label>Social Security Monthly ($): <input type="number" id="ssMonthlyB" value="0" /></label>
-    <label>Social Security Age: <input type="number" id="ssAgeB" value="67" /></label>
-    <label>Pension Lump Sum ($): <input type="number" id="pensionB" value="0" /></label>
-  </div>
-
-  <label><input type="checkbox" id="overlay"> Overlay Scenario A on B</label>
   <button onclick="runSimulation()">Run Simulation</button>
+
   <canvas id="fireChart" width="800" height="400"></canvas>
 
   <script>
-    function simulateFire(startInvest, growthRate, startAge, stopAge, monthlyContrib, monthlyExp, withdrawAge, ssMonthly, ssAge, pension, birthday) {
+    function runSimulation() {
+      const birthday = new Date(document.getElementById('birthday').value);
+      const startInvest = +document.getElementById('startInvest').value;
+      const growthRate = +document.getElementById('growthRate').value / 100;
+      const startAge = +document.getElementById('startAge').value;
+      const stopAge = +document.getElementById('stopAge').value;
+      const monthlyContrib = +document.getElementById('monthlyContrib').value;
+      const monthlyExp = +document.getElementById('monthlyExp').value;
+      const withdrawAge = +document.getElementById('withdrawAge').value;
+      const ssMonthly = +document.getElementById('ssMonthly').value;
+      const ssAge = +document.getElementById('ssAge').value;
+      const pension = +document.getElementById('pension').value;
+
       const startMonth = Math.floor(startAge * 12);
       const stopMonth = Math.floor(stopAge * 12);
       const withdrawMonth = Math.floor(withdrawAge * 12);
@@ -58,78 +74,41 @@
 
       const balances = [startInvest];
       const ages = [startAge];
+      const labels = [birthday.toISOString().split('T')[0]];
+
       const monthlyRate = Math.pow(1 + growthRate, 1 / 12) - 1;
 
       for (let m = startMonth + 1; m <= 95 * 12; m++) {
         let age = m / 12;
         let balance = balances[balances.length - 1] * (1 + monthlyRate);
+
         if (m === stopMonth) balance += pension;
         if (m >= startMonth && m < stopMonth) balance += monthlyContrib;
         if (m >= withdrawMonth) balance -= monthlyExp;
         if (m >= ssMonth) balance += ssMonthly;
-        balances.push(Math.max(balance, 0));
+        if (balance < 0) balance = 0;
+
+        balances.push(balance);
         ages.push(age);
+        const date = new Date(birthday);
+        date.setMonth(date.getMonth() + m);
+        labels.push(date.toISOString().split('T')[0]);
       }
-      return { balances, ages };
-    }
-
-    function runSimulation() {
-      const birthday = new Date(document.getElementById('birthday').value);
-      const overlay = document.getElementById('overlay').checked;
-
-      const a = simulateFire(
-        +document.getElementById('startInvestA').value,
-        +document.getElementById('growthRateA').value / 100,
-        +document.getElementById('startAgeA').value,
-        +document.getElementById('stopAgeA').value,
-        +document.getElementById('monthlyContribA').value,
-        +document.getElementById('monthlyExpA').value,
-        +document.getElementById('withdrawAgeA').value,
-        +document.getElementById('ssMonthlyA').value,
-        +document.getElementById('ssAgeA').value,
-        +document.getElementById('pensionA').value,
-        birthday
-      );
-
-      const b = simulateFire(
-        +document.getElementById('startInvestB').value,
-        +document.getElementById('growthRateB').value / 100,
-        +document.getElementById('startAgeB').value,
-        +document.getElementById('stopAgeB').value,
-        +document.getElementById('monthlyContribB').value,
-        +document.getElementById('monthlyExpB').value,
-        +document.getElementById('withdrawAgeB').value,
-        +document.getElementById('ssMonthlyB').value,
-        +document.getElementById('ssAgeB').value,
-        +document.getElementById('pensionB').value,
-        birthday
-      );
 
       if (window.fireChart) fireChart.destroy();
       const ctx = document.getElementById('fireChart').getContext('2d');
       window.fireChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: b.ages,
-          datasets: [
-            {
-              label: 'Scenario B',
-              data: b.balances,
-              borderColor: 'red',
-              borderWidth: 2,
-              fill: false,
-              pointRadius: 0
-            },
-            ...(overlay ? [{
-              label: 'Scenario A (Overlay)',
-              data: a.balances,
-              borderColor: 'blue',
-              borderWidth: 2,
-              borderDash: [5, 5],
-              fill: false,
-              pointRadius: 0
-            }] : [])
-          ]
+          labels: ages,
+          datasets: [{
+            label: 'Portfolio Balance ($)',
+            data: balances,
+            borderColor: 'blue',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+          }]
         },
         options: {
           scales: {
