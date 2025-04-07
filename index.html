@@ -96,7 +96,9 @@
         labels.push(date.toISOString().split('T')[0]);
       }
 
-      if (window.fireChart) window.fireChart.destroy();
+      if (window.fireChart && typeof window.fireChart.destroy === 'function') {
+        window.fireChart.destroy();
+      }
       const ctx = document.getElementById('fireChart').getContext('2d');
       window.fireChart = new Chart(ctx, {
         type: 'line',
